@@ -17,7 +17,7 @@ export default function GameBoard({ seed, imageIndices, nameMap, onBack }: GameB
   const [hiddenImages, setHiddenImages] = useState<Set<number>>(new Set());
   const [secretImage, setSecretImage] = useState<number | null>(null);
 
-  // Load secret image from localStorage on mount
+  // Load game state from localStorage on mount
   useEffect(() => {
     const savedSecret = localStorage.getItem(`secret-image-${seed}`);
     if (savedSecret !== null) {
@@ -25,6 +25,18 @@ export default function GameBoard({ seed, imageIndices, nameMap, onBack }: GameB
       // Verify the saved index is still valid for current game
       if (index >= 0 && index < imageIndices.length) {
         setSecretImage(index);
+      }
+    }
+
+    const savedHidden = localStorage.getItem(`hidden-images-${seed}`);
+    if (savedHidden !== null) {
+      try {
+        const hiddenArray = JSON.parse(savedHidden);
+        if (Array.isArray(hiddenArray)) {
+          setHiddenImages(new Set(hiddenArray));
+        }
+      } catch (e) {
+        console.error('Failed to parse hidden images:', e);
       }
     }
   }, [seed, imageIndices.length]);
@@ -37,6 +49,15 @@ export default function GameBoard({ seed, imageIndices, nameMap, onBack }: GameB
       localStorage.removeItem(`secret-image-${seed}`);
     }
   }, [secretImage, seed]);
+
+  // Save hidden images to localStorage whenever they change
+  useEffect(() => {
+    if (hiddenImages.size > 0) {
+      localStorage.setItem(`hidden-images-${seed}`, JSON.stringify(Array.from(hiddenImages)));
+    } else {
+      localStorage.removeItem(`hidden-images-${seed}`);
+    }
+  }, [hiddenImages, seed]);
 
   const toggleHidden = (index: number) => {
     setHiddenImages((prev) => {
@@ -60,19 +81,6 @@ export default function GameBoard({ seed, imageIndices, nameMap, onBack }: GameB
     }
   };
 
-  const handleImageLongPress = (index: number) => {
-    // Long press to select/clear secret
-    if (secretImage === null) {
-      // No secret selected: set this as secret
-      setSecretImage(index);
-    } else if (secretImage === index) {
-      // Long pressing current secret: clear it
-      setSecretImage(null);
-    } else {
-      // Secret exists but different character: replace it
-      setSecretImage(index);
-    }
-  };
 
   const isHidden = (index: number) => hiddenImages.has(index);
   const isSecret = (index: number) => secretImage === index;
@@ -162,23 +170,6 @@ export default function GameBoard({ seed, imageIndices, nameMap, onBack }: GameB
                       : 'opacity-100 active:scale-95'
                   } ${secretImage === null ? 'ring-2 ring-yellow-400' : ''}`}
                   onClick={() => handleImageClick(gridIndex)}
-                  onTouchStart={(e) => {
-                    const touch = e.touches[0];
-                    const startTime = Date.now();
-                    const startY = touch.clientY;
-                    
-                    const handleTouchEnd = () => {
-                      const endTime = Date.now();
-                      const duration = endTime - startTime;
-                      // Long press if held for more than 500ms
-                      if (duration > 500) {
-                        handleImageLongPress(gridIndex);
-                      }
-                      document.removeEventListener('touchend', handleTouchEnd);
-                    };
-                    
-                    document.addEventListener('touchend', handleTouchEnd, { once: true });
-                  }}
                 >
                   <Image
                     src={getCharacterImageUrl(imageIndex)}
