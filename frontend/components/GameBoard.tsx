@@ -77,12 +77,37 @@ export default function GameBoard({ seed, imageIndices, nameMap, onBack }: GameB
   const isHidden = (index: number) => hiddenImages.has(index);
   const isSecret = (index: number) => secretImage === index;
 
+  const handleCopyLink = async () => {
+    const url = `${window.location.origin}/${seed}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      // Show brief feedback
+      const button = document.getElementById('copy-link-btn');
+      if (button) {
+        const originalText = button.textContent;
+        button.textContent = 'COPIED!';
+        setTimeout(() => {
+          if (button) button.textContent = originalText;
+        }, 2000);
+      }
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 px-3 sm:px-4 pb-6 sm:pb-8 pt-2 sm:pt-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="mb-3 sm:mb-4 flex items-center justify-between gap-2">
+        <div className="mb-3 sm:mb-4 flex items-center justify-between gap-2 relative">
           <code className="px-2 sm:px-3 py-2 sm:py-1.5 bg-blue-900/50 rounded border border-blue-700 text-xs sm:text-sm font-mono font-bold uppercase text-blue-300">{seed}</code>
+          <button
+            id="copy-link-btn"
+            onClick={handleCopyLink}
+            className="absolute left-1/2 transform -translate-x-1/2 px-2 sm:px-2 py-1.5 sm:py-1 text-[10px] sm:text-xs font-bold uppercase bg-green-600 active:bg-green-700 text-white rounded transition-colors touch-manipulation"
+          >
+            Copy Link
+          </button>
           <button
             onClick={() => router.push('/')}
             className="px-4 sm:px-3 py-2 sm:py-1.5 text-xs sm:text-sm font-bold uppercase bg-gray-800 active:bg-gray-700 text-gray-100 rounded transition-colors touch-manipulation min-h-[44px]"
