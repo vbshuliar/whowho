@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { getCharacterImageUrl } from '@/lib/gameUtils';
 
@@ -8,10 +9,11 @@ interface GameBoardProps {
   seed: string;
   imageIndices: number[];
   nameMap: Map<number, string>;
-  onBack: () => void;
+  onBack?: () => void;
 }
 
 export default function GameBoard({ seed, imageIndices, nameMap, onBack }: GameBoardProps) {
+  const router = useRouter();
   const [hiddenImages, setHiddenImages] = useState<Set<number>>(new Set());
   const [secretImage, setSecretImage] = useState<number | null>(null);
 
@@ -82,7 +84,7 @@ export default function GameBoard({ seed, imageIndices, nameMap, onBack }: GameB
         <div className="mb-3 sm:mb-4 flex items-center justify-between gap-2">
           <code className="px-2 sm:px-3 py-2 sm:py-1.5 bg-blue-900/50 rounded border border-blue-700 text-xs sm:text-sm font-mono font-bold uppercase text-blue-300">{seed}</code>
           <button
-            onClick={onBack}
+            onClick={() => router.push('/')}
             className="px-4 sm:px-3 py-2 sm:py-1.5 text-xs sm:text-sm font-bold uppercase bg-gray-800 active:bg-gray-700 text-gray-100 rounded transition-colors touch-manipulation min-h-[44px]"
           >
             Menu

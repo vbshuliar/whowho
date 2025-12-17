@@ -1,23 +1,25 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { generateSeed } from '@/lib/gameUtils';
 
 interface StartScreenProps {
-  onStartGame: (seed: string) => void;
+  onStartGame?: (seed: string) => void;
 }
 
 export default function StartScreen({ onStartGame }: StartScreenProps) {
+  const router = useRouter();
   const [seed, setSeed] = useState('');
 
   const handleGenerate = () => {
     const newSeed = generateSeed();
-    onStartGame(newSeed);
+    router.push(`/${newSeed}`);
   };
 
   const handleJoin = () => {
     if (seed.length === 5) {
-      onStartGame(seed);
+      router.push(`/${seed}`);
     }
   };
 
