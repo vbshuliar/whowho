@@ -14,13 +14,74 @@ export function generateSeed(): string {
 }
 
 /**
+ * List of emojis for characters
+ */
+const EMOJIS = [
+  '😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '🙃',
+  '😉', '😊', '😇', '🥰', '😍', '🤩', '😘', '😗', '😚', '😙',
+  '😋', '😛', '😜', '🤪', '😝', '🤑', '🤗', '🤭', '🤫', '🤔',
+  '🤐', '🤨', '😐', '😑', '😶', '😏', '😒', '🙄', '😬', '🤥',
+  '😌', '😔', '😪', '🤤', '😴', '😷', '🤒', '🤕', '🤢', '🤮',
+  '🤧', '🥵', '🥶', '😶‍🌫️', '😵', '😵‍💫', '🤯', '🤠', '🥳', '😎',
+  '🤓', '🧐', '😕', '😟', '🙁', '☹️', '😮', '😯', '😲', '😳',
+  '🥺', '😦', '😧', '😨', '😰', '😥', '😢', '😭', '😱', '😖',
+  '😣', '😞', '😓', '😩', '😫', '🥱', '😤', '😡', '😠', '🤬',
+  '😈', '👿', '💀', '☠️', '💩', '🤡', '👹', '👺', '👻', '👽',
+  '👾', '🤖', '😺', '😸', '😹', '😻', '😼', '😽', '🙀', '😿',
+  '😾', '🙈', '🙉', '🙊', '💋', '💌', '💘', '💝', '💖', '💗',
+  '💓', '💞', '💕', '💟', '❣️', '💔', '❤️', '🧡', '💛', '💚',
+  '💙', '💜', '🖤', '🤍', '🤎', '💯', '💢', '💥', '💫', '💦',
+  '💨', '🕳️', '💣', '💬', '👁️‍🗨️', '🗨️', '🗯️', '💭', '💤', '👋',
+  '🤚', '🖐️', '✋', '🖖', '👌', '🤌', '🤏', '✌️', '🤞', '🤟',
+  '🤘', '🤙', '👈', '👉', '👆', '🖕', '👇', '☝️', '👍', '👎',
+  '✊', '👊', '🤛', '🤜', '👏', '🙌', '👐', '🤲', '🤝', '🙏',
+  '✍️', '💪', '🦾', '🦿', '🦵', '🦶', '👂', '🦻', '👃', '🧠',
+  '🫀', '🫁', '🦷', '🦴', '👀', '👁️', '👅', '👄', '💋', '🩸'
+];
+
+/**
+ * Get emoji for a character by index
+ * Same index always returns the same emoji
+ */
+export function getCharacterEmoji(index: number): string {
+  const rng = new SeedRandom(index.toString());
+  return EMOJIS[rng.nextInt(0, EMOJIS.length)];
+}
+
+/**
+ * Get emoji image URL using Twemoji for consistent rendering across all OS
+ * Same index always returns the same emoji
+ */
+export function getCharacterEmojiUrl(index: number): string {
+  const emoji = getCharacterEmoji(index);
+  // Convert emoji to code points for Twemoji CDN
+  // Handle both single and multi-code-point emojis
+  const codePoints: string[] = [];
+  for (let i = 0; i < emoji.length; i++) {
+    const code = emoji.codePointAt(i);
+    if (code && code > 0xFFFF) {
+      // Surrogate pair - skip the next character
+      i++;
+    }
+    if (code && code !== 0xFE0F) { // Skip variation selector
+      codePoints.push(code.toString(16));
+    }
+  }
+  
+  if (codePoints.length > 0) {
+    // Use the main code point (first one) for Twemoji
+    return `https://cdn.jsdelivr.net/npm/twemoji@latest/2/svg/${codePoints[0]}.svg`;
+  }
+  
+  // Fallback: use a default emoji if conversion fails
+  return 'https://cdn.jsdelivr.net/npm/twemoji@latest/2/svg/1f600.svg';
+}
+
+/**
  * Get image URL for a character by index
- * Using a placeholder service that can generate consistent images
- * Supports unlimited indices - same index always shows same character
+ * @deprecated Use getCharacterEmoji instead
  */
 export function getCharacterImageUrl(index: number): string {
-  // Using DiceBear API with seed-based generation for consistent images
-  // This ensures same index always shows same character
   return `https://api.dicebear.com/7.x/avataaars/svg?seed=character${index}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
 }
 
