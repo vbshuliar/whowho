@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { getCharacterEmoji, getCharacterEmojiUrl } from '@/lib/gameUtils';
+import { getCharacterImageUrl } from '@/lib/gameUtils';
 
 interface GameBoardProps {
   seed: string;
@@ -128,7 +128,7 @@ export default function GameBoard({ seed, imageIndices, nameMap, onBack }: GameB
         <div className="mb-3 sm:mb-4 flex justify-center">
           <div className="flex flex-col items-center gap-1 sm:gap-2">
             <div 
-              className="relative w-20 h-20 sm:w-16 sm:h-16 rounded-lg overflow-hidden border-2 border-yellow-400 bg-gray-800 cursor-pointer active:opacity-80 transition-opacity touch-manipulation flex items-center justify-center"
+              className="relative w-20 h-20 sm:w-16 sm:h-16 rounded-lg overflow-hidden border-2 border-yellow-400 bg-gray-800 cursor-pointer active:opacity-80 transition-opacity touch-manipulation"
               onClick={() => {
                 if (secretImage !== null) {
                   setSecretImage(null);
@@ -137,11 +137,10 @@ export default function GameBoard({ seed, imageIndices, nameMap, onBack }: GameB
             >
               {secretImage !== null && (
                 <Image
-                  src={getCharacterEmojiUrl(imageIndices[secretImage])}
+                  src={getCharacterImageUrl(imageIndices[secretImage])}
                   alt="Secret"
-                  width={48}
-                  height={48}
-                  className="object-contain"
+                  fill
+                  className="object-cover"
                   unoptimized
                 />
               )}
@@ -165,7 +164,7 @@ export default function GameBoard({ seed, imageIndices, nameMap, onBack }: GameB
                 className="flex flex-col gap-1"
               >
                 <div
-                  className={`relative aspect-square rounded-lg overflow-hidden cursor-pointer transition-all duration-200 touch-manipulation flex items-center justify-center bg-gray-800 ${
+                  className={`relative aspect-square rounded-lg overflow-hidden cursor-pointer transition-all duration-200 touch-manipulation ${
                     hidden && secretImage !== null
                       ? 'opacity-30 grayscale'
                       : 'opacity-100 active:scale-95'
@@ -173,11 +172,10 @@ export default function GameBoard({ seed, imageIndices, nameMap, onBack }: GameB
                   onClick={() => handleImageClick(gridIndex)}
                 >
                   <Image
-                    src={getCharacterEmojiUrl(imageIndex)}
+                    src={getCharacterImageUrl(imageIndex)}
                     alt={name}
-                    width={64}
-                    height={64}
-                    className="object-contain"
+                    fill
+                    className="object-cover"
                     unoptimized
                   />
                   {hidden && secretImage !== null && (
